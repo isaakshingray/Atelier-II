@@ -1,20 +1,37 @@
-// Francisco Samayoa ~ Assignment 1: Mushroom Forest
+// Francisco Samayoa, Annie Zhang, Isaak Shingray ~ Assignment 1: Mushroom Forest
 
-// References mic input example & pointillism example
-// https://p5js.org/examples/image-pointillism.html by Dan Shiffman
-// https://p5js.org/examples/sound-mic-input.html
 // https://p5js.org/examples/interaction-wavemaker.html
 
-var mic;
+// Spring drawing constants for top bar
+var springHeight = 32,
+    left,
+    right,
+    maxHeight = 200,
+    minHeight = 100,
+    over = false,
+    move = false;
+
+// Spring simulation constants
+var M = 0.8,  // Mass
+    K = 0.2,  // Spring constant
+    D = 0.92, // Damping
+    R = 150;  // Rest position
+
+// Spring simulation variables
+var ps = R,   // Position
+    vs = 0.0, // Velocity
+    as = 0,   // Acceleration
+    f = 0;    // Force
+
 let offset = 0.5;
 let easing = 0.05;
-var mushroom, mushroom2;
+var mushroom, smallMushroom;
 var smallPoint, largePoint;
 
-var newX = 0; // mouseX > pubnub
-var newX2 = 0; // mouseX > PubNub
-var newY = 0; // mouseY > pubnub
-var newY2 = 0; // mouseY > PubNub
+var newX = 0; // mouseX > PubNub (Isaak)
+var newX2 = 0; // mouseX > PubNub (Annie)
+var newY = 0; // mouseY > PubNub (Isaak)
+var newY2 = 0; // mouseY > PubNub (Annie)
 var t = 0; // time variable
 
 var opacity = 255;
@@ -29,30 +46,30 @@ var value = 0;
 
 function preload() {
   mushroom = loadImage("mushroom.jpg");
-  //mushroom2 = loadImage("mushroom2.jpg")
+  // mushroom2 = loadImage("mushroom2.jpg")
   smallMushroom = loadImage("smallMushroom.png");
+
+  soundFormats('mp3', 'ogg');
+  mySound = loadSound('passthehours.mp3');
 }
 
 function setup() {
   createCanvas(window.innerWidth, window.innerHeight);
   frameRate(30);
-  // smallPoint = 4;
-  // largePoint = 40;
   imageMode(CENTER);
   noStroke();
   background(255, 10);
-  mushroom.loadPixels();
-  smallMushroom.loadPixels();
-  //mushroom.blend(mushroom2, 0, 0, window.innerWidth, window.innerHeight, 0, 0, window.innerWidth,
-    //window.innerHeight, ADD);
-  image(mushroom, width/2, height/2);
+  // smallMushroom.loadPixels();
+  // mushroom.loadPixels();
+  // mushroom.blend(smallMushroom, 0, 0, window.innerWidth, window.innerHeight, 0, 0, window.innerWidth,
+  //   window.innerHeight, ADD);
+  // image(smallMushroom, width/2, height/2);
+  // image(mushroom, width/2, height/2);
   //image(mushroom2, 0, 0);
-  image(smallMushroom, width/2, height/2);
-
-  //mic = new p5.AudioIn();
-  // By default, it does not .connect() (to the computer speakers)
-  //mic.start();
-
+  left = width/2 - 100;
+  right = width/2 + 100;
+  mySound.setVolume(0.5);
+  mySound.play();
   // initialize pubnub
  dataServer = new PubNub(
  {
@@ -69,17 +86,12 @@ function setup() {
 function draw() {
   // background(112, 0, 102, 10);
   grass();
-  // // Get the overall volume (between 0 and 1.0)
-  // var vol = mic.getLevel();
-  // var pointillize = map(vol, 0, 1, smallPoint, largePoint);
-  // console.log(pointillize);
-  //
-  // var x = floor(random(mushroom.width));
-  // var y = floor(random(mushroom.height));
-  // var pix = mushroom.get(x, y);
-  // fill(pix, 128);
-  // ellipse(x, y, pointillize, pointillize);
-  //
+
+  // if (over) {
+  //   updateSpring();
+  //   drawSpring();
+  // }
+
   stroke(255, opacity);
   opacity *= 0.99;
   translate(width/2, height);
@@ -93,6 +105,7 @@ function draw() {
   offset += dy * easing;
   tint(255, 127); // Display at half opacity
   image(mushroom, offset, 0);
+  // image(smallMushroom, offset, 0);
 }
 
 function branch(length, theta) {
@@ -110,7 +123,6 @@ function branch(length, theta) {
       rotate(-theta);
       branch(0.618 * length, theta);
     pop();
-
   }
 }
 
@@ -164,4 +176,63 @@ function grass(){
     }
   }
   t = t + 0.01; // update time
+}
+
+function drawSpring() {
+  // Draw base
+  // tint(0);
+  fill(226, 255, 140);
+  var baseWidth = 0.5 * ps + -8;
+  rect(width/2 - baseWidth, ps + springHeight, width/2 + baseWidth, height);
+
+  // Set color and draw top bar
+  // if (over || move) {
+  //   fill(255);
+  // } else {
+  //   fill(204);
+  // }
+    fill(244, 104, 66);
+      arc(left+100, ps+50, right-100, ps + springHeight+100, PI, TWO_PI);
+
+}
+
+function updateSpring() {
+  // Update the spring position
+  if ( !move ) {
+    f = -K * ( ps - R ); // f=-ky
+    as = f / M;          // Set the acceleration, f=ma == a=f/m
+    vs = D * (vs + as);  // Set the velocity
+    ps = ps + vs;        // Updated position
+  }
+
+  if (abs(vs) < 0.1) {
+    vs = 0.0;
+  }
+
+  // Test if mouse if over the top bar
+  if (mouseX <width && mouseY < height + springHeight) {
+    over = true;
+  } else {
+    over = false;
+  }
+
+  // Set and constrain the position of top bar
+  if (move) {
+    ps = mouseY - springHeight/2;
+    ps = constrain(ps, minHeight, maxHeight);
+  }
+}
+
+function mousePressed() {
+  if (over) {
+    updateSpring();
+    drawSpring();
+    move = true;
+  }
+}
+
+function mouseReleased() {
+  move = false;
+  updateSpring();
+  drawSpring();
 }
