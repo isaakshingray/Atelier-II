@@ -6,8 +6,8 @@
 var springHeight = 32,
     left,
     right,
-    maxHeight = 200,
-    minHeight = 100,
+    maxHeight = 400,
+    minHeight = 200,
     over = false,
     move = false;
 
@@ -26,7 +26,6 @@ var ps = R,   // Position
 let offset = 0.5;
 let easing = 0.05;
 var mushroom, smallMushroom;
-var smallPoint, largePoint;
 
 var newX = 0; // mouseX > PubNub (Isaak)
 var newX2 = 0; // mouseX > PubNub (Annie)
@@ -104,6 +103,7 @@ function draw() {
   // if (over) {
   //   updateSpring();
   //   drawSpring();
+  //   // clear();
   // }
 
   stroke(255, opacity);
@@ -197,7 +197,8 @@ function drawSpring() {
   // tint(0);
   fill(226, 255, 140);
   var baseWidth = 0.5 * ps + -8;
-  rect(width/2 - baseWidth, ps + springHeight, width/2 + baseWidth, height);
+  // rect(width/2 - baseWidth, ps + springHeight, width/2 + baseWidth, height);
+  rect(mouseX - baseWidth, mouseY + springHeight, width/2 + baseWidth, height);
 
   // Set color and draw top bar
   // if (over || move) {
