@@ -87,6 +87,20 @@ function draw() {
   // background(112, 0, 102, 10);
   grass();
 
+  if (keyIsDown(UP_ARROW)) {
+    tint(0, 153, 204);
+    image(mushroom, offset, 0);
+  } else if (keyIsDown(RIGHT_ARROW)) {
+    tint(204, 153, 0);
+    image(mushroom, offset, 0);
+  } else if (keyIsDown(LEFT_ARROW)) {
+    tint(0, 204, 153);
+    image(mushroom, offset, 0);
+  } else if (keyIsDown(DOWN_ARROW)) {
+    tint(255, 126);
+    image(mushroom, offset, 0);
+  }
+
   // if (over) {
   //   updateSpring();
   //   drawSpring();
@@ -236,3 +250,21 @@ function mouseReleased() {
   updateSpring();
   drawSpring();
 }
+
+// function keyPressed() {
+//   if (keyCode === UP_ARROW) {
+//     tint(0, 153, 204, 126);
+//     image(mushroom, offset, 0);
+//   } else if (keyCode === RIGHT_ARROW) {
+//     tint(204, 153, 0, 126);
+//     image(mushroom, offset, 0);
+//   } else if (keyCode === LEFT_ARROW) {
+//     tint(0, 204, 153, 126);
+//     image(mushroom, offset, 0);
+//   } else if (keyCode === DOWN_ARROW) {
+//     tint(255, 126);
+//     image(mushroom, offset, 0);
+//   }
+//
+//   // return false; // prevent default
+// }
